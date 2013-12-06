@@ -12,9 +12,9 @@ int main(int argc, char * argv[]) {
 	int copy, ttyfd;
 	char tty[128];
 
-
 		
 	if(argc > 1){
+
 		fd = open(argv[1], O_RDONLY);
 
 	}else{

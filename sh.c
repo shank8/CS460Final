@@ -138,7 +138,7 @@ int recursivePipe(char * cmd, int index){
 
 int manageFileIO(char * cmd){
 	char * pch = cmd;
-	int type;
+	int type = 0;
 	char *file;
 	int fd;
 	int pid;
@@ -151,18 +151,26 @@ int manageFileIO(char * cmd){
 				type = FILEAPPEND;
 				file = pch + 3;
 				
-				
-				if(fd >= 0){
-					*(pch-2) = '\0';
-					close(1);
+			
+					
+
+					
 					fd = open(file, O_WRONLY | O_APPEND | O_CREAT); // Open file for write or create
 
+					if(fd >= 0){
+						*(pch-1) = '\0';
+						printf("cmd = %s\n", cmd);
+						printf("fd: %d, file = %s\n", fd, file);
+						dup2(fd, 1);
+						close(fd);
+					}
 		
-				}
+				
 				
 
 			}else{ //just regular
 
+				if(type == 0){
 			type = FILEOUT;
 			file = pch+2; // cmd="cat filename > newfile" then file = > + 2 which is 'newfile'
 			
@@ -171,11 +179,13 @@ int manageFileIO(char * cmd){
 			if(fd >= 0){
 			*(pch-1) = '\0';
 			dup2(fd, 1);
-			
+			close(fd);
+
 			}else{
-				printf("Bad file descriptor");
+				printf("Bad file descriptor in sh");
 				getc();
 			}
+		}
 		}
 
 		}else if(*pch == '<'){ // Input from file
