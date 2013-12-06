@@ -7,6 +7,7 @@
 
 int pid, child, status;
 int stdin, stdout;
+int s0pid, s1pid;
 
 #include "ucode.c"  
 //#include "login.c"
@@ -41,6 +42,32 @@ int login()
       
 int parent()
 {
+  // Set up serial ports
+  s0pid = fork();
+  if(s0pid){
+    // Parent
+    s1pid = fork();
+    if(s1pid){
+      return;
+    }else{
+      // Child
+       close(0);
+    close(1);
+    stdin = open("/dev/ttyS1", O_RDONLY);
+    stdout = open("/dev/ttyS1", O_WRONLY);
+
+    exec("login /dev/ttyS1");
+    }
+  }else{
+    // Child
+    close(0);
+    close(1);
+    stdin = open("/dev/ttyS0", O_RDONLY);
+    stdout = open("/dev/ttyS0", O_WRONLY);
+
+    exec("login /dev/ttyS0");
+  }
+
   while(1){
     printf("KCINIT : waiting .....\n");
    // printf("before");
